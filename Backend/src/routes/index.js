@@ -1,11 +1,9 @@
 import { Router } from "express";
 
-import healthRoutes from "./healthRoutes.js";
-import taskRoutes from "./taskRoutes.js";
+import healthRoutes from "../modules/health/health.routes.js";
 
 const router = Router();
 
 router.use("/health", healthRoutes);
-router.use("/tasks", taskRoutes);
 
 export default router;
