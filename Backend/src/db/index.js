@@ -1,38 +1,17 @@
-import pg from "pg";
+import mongoose from "mongoose";
 
 import { env } from "../config/env.js";
 
-const { Pool } = pg;
-
-const connectionOptions = {
-  connectionString: env.databaseUrl,
-};
-
-if (env.databaseSsl) {
-  connectionOptions.ssl = { rejectUnauthorized: false };
-}
-
-const pool = new Pool(connectionOptions);
-
-pool.on("error", (error) => {
-  console.error("Unexpected PostgreSQL client error.", error);
-});
+mongoose.set("strictQuery", true);
 
 export const connectDatabase = async () => {
-  const client = await pool.connect();
+  await mongoose.connect(env.mongoUri, {
+    serverSelectionTimeoutMS: 15000,
+  });
 
-  try {
-    await client.query("SELECT 1");
-    console.log("PostgreSQL connection established.");
-  } finally {
-    client.release();
-  }
+  console.log(`MongoDB connected: ${mongoose.connection.host}`);
 };
 
 export const disconnectDatabase = async () => {
-  await pool.end();
+  await mongoose.disconnect();
 };
-
-export const query = (text, params = []) => pool.query(text, params);
-
-export const getDbClient = () => pool.connect();
