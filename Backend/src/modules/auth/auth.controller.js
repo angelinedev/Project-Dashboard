@@ -14,6 +14,9 @@ const writeAuthResponse = (response, statusCode, payload) => {
     })
     .json({
       success: true,
+      token: payload.token,
+      user: payload.user,
+      memberships: payload.memberships,
       data: payload,
     });
 };
@@ -34,8 +37,5 @@ export const joinTeam = asyncHandler(async (request, response) => {
     inviteCode: request.body.inviteCode,
   });
 
-  response.status(200).json({
-    success: true,
-    data: payload,
-  });
+  writeAuthResponse(response, 200, payload);
 });

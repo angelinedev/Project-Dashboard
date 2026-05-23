@@ -1,6 +1,7 @@
 import { TeamMember } from "../../models/TeamMember.js";
 import { User } from "../../models/User.js";
 import { createHttpError } from "../../utils/createHttpError.js";
+import { serializeMembershipCollection } from "../../utils/serializeMembership.js";
 
 export const getCurrentUserProfile = async (userId) => {
   const user = await User.findById(userId);
@@ -18,6 +19,6 @@ export const getCurrentUserProfile = async (userId) => {
 
   return {
     user: user.toSafeObject(),
-    memberships,
+    memberships: serializeMembershipCollection(memberships),
   };
 };

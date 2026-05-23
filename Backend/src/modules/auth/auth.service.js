@@ -7,6 +7,7 @@ import { Team } from "../../models/Team.js";
 import { TeamMember } from "../../models/TeamMember.js";
 import { User } from "../../models/User.js";
 import { createHttpError } from "../../utils/createHttpError.js";
+import { serializeMembershipCollection } from "../../utils/serializeMembership.js";
 
 const normalizeEmail = (email) => email.trim().toLowerCase();
 const normalizeInviteCode = (inviteCode) => inviteCode.trim().toUpperCase();
@@ -23,25 +24,6 @@ const signAccessToken = (user) =>
     },
   );
 
-const buildMembershipResponse = (memberships) =>
-  memberships.map((membership) => ({
-    id: membership._id.toString(),
-    role: membership.role,
-    joinedAt: membership.joinedAt,
-    team: membership.team
-      ? {
-          id: membership.team._id.toString(),
-          teamName: membership.team.teamName,
-          inviteCode: membership.team.inviteCode,
-          leader: membership.team.leader,
-          memberCount: membership.team.memberCount,
-          description: membership.team.description,
-          createdAt: membership.team.createdAt,
-          updatedAt: membership.team.updatedAt,
-        }
-      : null,
-  }));
-
 const loadUserMemberships = async (userId, session = null) =>
   TeamMember.find({ user: userId })
     .populate({
@@ -57,7 +39,7 @@ const buildAuthPayload = async (user, session = null) => {
   return {
     token: signAccessToken(user),
     user: user.toSafeObject(),
-    memberships: buildMembershipResponse(memberships),
+    memberships: serializeMembershipCollection(memberships),
   };
 };
 

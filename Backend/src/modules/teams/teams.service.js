@@ -4,6 +4,7 @@ import { Team } from "../../models/Team.js";
 import { TeamMember } from "../../models/TeamMember.js";
 import { createHttpError } from "../../utils/createHttpError.js";
 import { generateInviteCode } from "../../utils/generateInviteCode.js";
+import { serializeMembershipCollection } from "../../utils/serializeMembership.js";
 
 const ensureUniqueInviteCode = async (session) => {
   for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -70,12 +71,7 @@ export const getTeamsForUser = async (userId) => {
     })
     .sort({ joinedAt: -1 });
 
-  return memberships.map((membership) => ({
-    id: membership._id.toString(),
-    role: membership.role,
-    joinedAt: membership.joinedAt,
-    team: membership.team,
-  }));
+  return serializeMembershipCollection(memberships);
 };
 
 export const getTeamMembers = async ({ userId, teamId }) => {
