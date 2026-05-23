@@ -1,6 +1,6 @@
-export const navigationItems = [
-  { label: "Overview", hint: "Live", active: true },
-  { label: "Kanban Board", hint: "Drag", active: false },
-  { label: "Analytics", hint: "Data", active: false },
-  { label: "Audit Trail", hint: "Logs", active: false },
+export const dashboardSections = [
+  { label: "Protected Access", hint: "JWT" },
+  { label: "Kanban Board", hint: "Tasks" },
+  { label: "Team Join", hint: "Code" },
+  { label: "Live Status", hint: "API" },
 ];
