@@ -6,6 +6,11 @@ import { env } from "../../config/env.js";
 import { Team } from "../../models/Team.js";
 import { TeamMember } from "../../models/TeamMember.js";
 import { User } from "../../models/User.js";
+import {
+  PLATFORM_ROLE,
+  TEAM_ROLE,
+  ensurePlatformRole,
+} from "../../utils/accessControl.js";
 import { createHttpError } from "../../utils/createHttpError.js";
 import { serializeMembershipCollection } from "../../utils/serializeMembership.js";
 
@@ -62,6 +67,7 @@ export const registerUser = async ({ fullName, email, password, inviteCode }) =>
 
   try {
     await session.withTransaction(async () => {
+      const existingUserCount = await User.countDocuments().session(session);
       const existingUser = await User.findOne({ email: normalizedEmail }).session(session);
 
       if (existingUser) {
@@ -85,6 +91,10 @@ export const registerUser = async ({ fullName, email, password, inviteCode }) =>
             fullName: fullName.trim(),
             email: normalizedEmail,
             passwordHash,
+            platformRole:
+              existingUserCount === 0
+                ? PLATFORM_ROLE.MEGA_LEADER
+                : PLATFORM_ROLE.MEMBER,
           },
         ],
         { session },
@@ -96,7 +106,7 @@ export const registerUser = async ({ fullName, email, password, inviteCode }) =>
             {
               team: team._id,
               user: user._id,
-              role: "member",
+              role: TEAM_ROLE.MEMBER,
             },
           ],
           { session },
@@ -132,6 +142,7 @@ export const loginUser = async ({ email, password }) => {
     throw createHttpError(401, "Invalid email or password.");
   }
 
+  await ensurePlatformRole(user);
   return buildAuthPayload(user);
 };
 
@@ -166,7 +177,7 @@ export const joinTeamByCode = async ({ userId, inviteCode }) => {
           {
             team: team._id,
             user: userId,
-            role: "member",
+            role: TEAM_ROLE.MEMBER,
           },
         ],
         { session },

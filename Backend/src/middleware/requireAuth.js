@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 
 import { env } from "../config/env.js";
 import { User } from "../models/User.js";
+import { ensurePlatformRole } from "../utils/accessControl.js";
 import { createHttpError } from "../utils/createHttpError.js";
 
 const extractBearerToken = (authorizationHeader = "") => {
@@ -28,6 +29,7 @@ export const requireAuth = async (request, _response, next) => {
       throw createHttpError(401, "The authenticated user no longer exists.");
     }
 
+    await ensurePlatformRole(user);
     request.user = user;
     request.auth = decoded;
     next();

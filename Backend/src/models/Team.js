@@ -22,6 +22,12 @@ const teamSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     description: {
       type: String,
       default: "",

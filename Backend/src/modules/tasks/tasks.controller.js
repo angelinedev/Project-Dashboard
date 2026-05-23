@@ -4,7 +4,7 @@ import { createTask, getTasksForUser, updateTaskStatus } from "./tasks.service.j
 
 export const createTaskController = asyncHandler(async (request, response) => {
   const task = await createTask({
-    userId: request.user._id,
+    actor: request.user,
     teamId: request.body.teamId,
     title: request.body.title,
     description: request.body.description,
@@ -21,7 +21,7 @@ export const createTaskController = asyncHandler(async (request, response) => {
 
 export const getTasksController = asyncHandler(async (request, response) => {
   const tasks = await getTasksForUser({
-    userId: request.user._id,
+    user: request.user,
     teamId: request.query.teamId,
   });
 
@@ -33,7 +33,7 @@ export const getTasksController = asyncHandler(async (request, response) => {
 
 export const updateTaskStatusController = asyncHandler(async (request, response) => {
   const task = await updateTaskStatus({
-    userId: request.user._id,
+    user: request.user,
     taskId: request.params.taskId,
     status: request.body.status,
   });

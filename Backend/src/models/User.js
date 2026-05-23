@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
+    platformRole: {
+      type: String,
+      enum: ["mega_leader", "member"],
+      default: "member",
+      index: true,
+    },
   },
   {
     timestamps: true,
@@ -46,6 +52,7 @@ userSchema.methods.toSafeObject = function toSafeObject() {
     fullName: this.fullName,
     email: this.email,
     avatarUrl: this.avatarUrl,
+    platformRole: this.platformRole || "member",
     createdAt: this.createdAt,
     updatedAt: this.updatedAt,
   };

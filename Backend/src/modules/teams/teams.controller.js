@@ -1,12 +1,18 @@
 import { asyncHandler } from "../../utils/asyncHandler.js";
 
-import { createTeam, getTeamMembers, getTeamsForUser } from "./teams.service.js";
+import {
+  createTeam,
+  getTeamMembers,
+  getTeamsForUser,
+  updateTeamLeader,
+} from "./teams.service.js";
 
 export const createTeamController = asyncHandler(async (request, response) => {
   const team = await createTeam({
-    userId: request.user._id,
+    actor: request.user,
     teamName: request.body.teamName,
     description: request.body.description,
+    leaderId: request.body.leaderId,
   });
 
   response.status(201).json({
@@ -16,7 +22,7 @@ export const createTeamController = asyncHandler(async (request, response) => {
 });
 
 export const getMyTeamsController = asyncHandler(async (request, response) => {
-  const teams = await getTeamsForUser(request.user._id);
+  const teams = await getTeamsForUser(request.user);
 
   response.status(200).json({
     success: true,
@@ -26,12 +32,25 @@ export const getMyTeamsController = asyncHandler(async (request, response) => {
 
 export const getTeamMembersController = asyncHandler(async (request, response) => {
   const members = await getTeamMembers({
-    userId: request.user._id,
+    viewer: request.user,
     teamId: request.params.teamId,
   });
 
   response.status(200).json({
     success: true,
     data: members,
+  });
+});
+
+export const updateTeamLeaderController = asyncHandler(async (request, response) => {
+  const team = await updateTeamLeader({
+    actor: request.user,
+    teamId: request.params.teamId,
+    leaderUserId: request.body.leaderUserId,
+  });
+
+  response.status(200).json({
+    success: true,
+    data: team,
   });
 });

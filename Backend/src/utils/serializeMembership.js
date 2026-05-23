@@ -1,20 +1,29 @@
+export const serializeTeam = (team) => ({
+  id: team._id.toString(),
+  teamName: team.teamName,
+  inviteCode: team.inviteCode,
+  leader: team.leader?.toString?.() ?? team.leader,
+  createdBy: team.createdBy?.toString?.() ?? team.createdBy,
+  memberCount: team.memberCount,
+  description: team.description,
+  createdAt: team.createdAt,
+  updatedAt: team.updatedAt,
+});
+
 export const serializeMembership = (membership) => ({
   id: membership._id.toString(),
   role: membership.role,
   joinedAt: membership.joinedAt,
-  team: membership.team
-    ? {
-        id: membership.team._id.toString(),
-        teamName: membership.team.teamName,
-        inviteCode: membership.team.inviteCode,
-        leader: membership.team.leader,
-        memberCount: membership.team.memberCount,
-        description: membership.team.description,
-        createdAt: membership.team.createdAt,
-        updatedAt: membership.team.updatedAt,
-      }
-    : null,
+  team: membership.team ? serializeTeam(membership.team) : null,
 });
 
 export const serializeMembershipCollection = (memberships) =>
   memberships.map(serializeMembership);
+
+export const serializeTeamAccessCollection = (teams, role = "mega_leader") =>
+  teams.map((team) => ({
+    id: `team-access-${team._id.toString()}`,
+    role,
+    joinedAt: team.createdAt,
+    team: serializeTeam(team),
+  }));

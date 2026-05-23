@@ -1,19 +1,15 @@
 import { Task } from "../../models/Task.js";
+import { User } from "../../models/User.js";
+import {
+  TEAM_ROLE,
+  canManageTeamTasks,
+  getTeamAccess,
+} from "../../utils/accessControl.js";
 import { TeamMember } from "../../models/TeamMember.js";
 import { createHttpError } from "../../utils/createHttpError.js";
 
-const getMembership = async (teamId, userId) => {
-  const membership = await TeamMember.findOne({ team: teamId, user: userId });
-
-  if (!membership) {
-    throw createHttpError(403, "You do not have access to this team.");
-  }
-
-  return membership;
-};
-
 export const createTask = async ({
-  userId,
+  actor,
   teamId,
   title,
   description,
@@ -25,27 +21,41 @@ export const createTask = async ({
     throw createHttpError(400, "Team and title are required.");
   }
 
-  const membership = await getMembership(teamId, userId);
+  const access = await getTeamAccess({
+    teamId,
+    user: actor,
+  });
 
-  if (membership.role !== "leader") {
-    throw createHttpError(403, "Only a team leader can create tasks.");
+  if (!canManageTeamTasks(access)) {
+    throw createHttpError(403, "Only a team leader or mega leader can create tasks.");
+  }
+
+  if (assignedTo) {
+    const assignedMember = await TeamMember.findOne({
+      team: teamId,
+      user: assignedTo,
+    });
+
+    if (!assignedMember) {
+      throw createHttpError(400, "The selected assignee is not part of this team.");
+    }
   }
 
   return Task.create({
     team: teamId,
     title: title.trim(),
     description: description?.trim() ?? "",
-    createdBy: userId,
+    createdBy: actor._id,
     assignedTo: assignedTo || null,
     dueDate: dueDate || null,
     priority: priority || "medium",
   });
 };
 
-export const getTasksForUser = async ({ userId, teamId }) => {
+export const getTasksForUser = async ({ user, teamId }) => {
   if (!teamId) {
     return Task.find({
-      $or: [{ assignedTo: userId }, { createdBy: userId }],
+      $or: [{ assignedTo: user._id }, { createdBy: user._id }],
     })
       .populate("team", "teamName inviteCode")
       .populate("assignedTo", "fullName email avatarUrl")
@@ -53,11 +63,14 @@ export const getTasksForUser = async ({ userId, teamId }) => {
       .sort({ createdAt: -1 });
   }
 
-  const membership = await getMembership(teamId, userId);
+  const access = await getTeamAccess({
+    teamId,
+    user,
+  });
   const query = { team: teamId };
 
-  if (membership.role !== "leader") {
-    query.assignedTo = userId;
+  if (!canManageTeamTasks(access)) {
+    query.assignedTo = user._id;
   }
 
   return Task.find(query)
@@ -67,7 +80,7 @@ export const getTasksForUser = async ({ userId, teamId }) => {
     .sort({ createdAt: -1 });
 };
 
-export const updateTaskStatus = async ({ userId, taskId, status }) => {
+export const updateTaskStatus = async ({ user, taskId, status }) => {
   if (!status) {
     throw createHttpError(400, "Task status is required.");
   }
@@ -78,10 +91,13 @@ export const updateTaskStatus = async ({ userId, taskId, status }) => {
     throw createHttpError(404, "Task not found.");
   }
 
-  const membership = await getMembership(task.team, userId);
-  const isLeader = membership.role === "leader";
+  const access = await getTeamAccess({
+    teamId: task.team,
+    user,
+  });
+  const isLeader = canManageTeamTasks(access);
   const isAssignee =
-    task.assignedTo && task.assignedTo.toString() === userId.toString();
+    task.assignedTo && task.assignedTo.toString() === user._id.toString();
 
   if (!isLeader && !isAssignee) {
     throw createHttpError(403, "You cannot update this task.");
