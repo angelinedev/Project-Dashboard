@@ -10,10 +10,22 @@ import { requestLogger } from "./middleware/requestLogger.js";
 import { env } from "./config/env.js";
 
 const app = express();
+const allowedOrigins = new Set([
+  env.clientUrl,
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+]);
 
 app.use(
   cors({
-    origin: env.clientUrl,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   }),
 );

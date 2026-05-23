@@ -14,9 +14,6 @@ const writeAuthResponse = (response, statusCode, payload) => {
     })
     .json({
       success: true,
-      token: payload.token,
-      user: payload.user,
-      memberships: payload.memberships,
       data: payload,
     });
 };

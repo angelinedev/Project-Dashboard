@@ -56,18 +56,24 @@ const LoginPage = () => {
       const payload =
         mode === "login"
           ? {
-              email: values.email,
+              email: values.email.trim(),
               password: values.password,
             }
           : {
-              fullName: values.fullName,
-              email: values.email,
+              fullName: values.fullName.trim(),
+              email: values.email.trim(),
               password: values.password,
-              inviteCode: values.inviteCode || undefined,
+              inviteCode: values.inviteCode?.trim() || undefined,
             };
 
       const response = await api.post(endpoint, payload);
-      persistSession(response.data.data ?? response.data);
+      const authPayload = response.data?.data;
+
+      if (!authPayload?.token) {
+        throw new Error("Authentication response did not include a token.");
+      }
+
+      persistSession(authPayload);
       navigate("/dashboard", { replace: true });
     } catch (error) {
       setServerError(getApiErrorMessage(error));
@@ -210,7 +216,9 @@ const LoginPage = () => {
                       type="text"
                       placeholder="Optional: TEAM12"
                       className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 uppercase text-slate-900 outline-none transition focus:border-teal-400 focus:bg-white"
-                      {...register("inviteCode")}
+                      {...register("inviteCode", {
+                        setValueAs: (value) => value?.trim() || "",
+                      })}
                     />
                     <p className="mt-2 text-sm text-slate-400">
                       Leave this blank if you are creating an account first and joining later.
