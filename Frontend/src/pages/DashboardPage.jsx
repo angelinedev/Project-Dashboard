@@ -116,6 +116,18 @@ const DashboardPage = () => {
     }
   };
 
+  const fetchAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    try {
+      const response = await api.get("/teams/analytics");
+      setAnalyticsData(response.data.data || []);
+    } catch (error) {
+      setDashboardError(getApiErrorMessage(error));
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  };
+
   const fetchProfile = async () => {
     setIsLoadingProfile(true);
     setDashboardError("");
@@ -139,6 +151,7 @@ const DashboardPage = () => {
 
       if (payload.user?.platformRole === "mega_leader") {
         await fetchUsersDirectory();
+        await fetchAnalytics();
       }
     } catch (error) {
       if (error.response?.status === 401) {
@@ -176,12 +189,17 @@ const DashboardPage = () => {
   };
 
   const fetchTasks = async (teamId = selectedTeamId) => {
+    if (!teamId) {
+      setTasks([]);
+      return;
+    }
+
     setIsLoadingTasks(true);
     setDashboardError("");
 
     try {
       const response = await api.get("/tasks", {
-        params: teamId ? { teamId } : {},
+        params: { teamId },
       });
 
       setTasks(response.data.data || []);
@@ -206,9 +224,13 @@ const DashboardPage = () => {
       return;
     }
 
-    fetchTasks(selectedTeamId);
-    fetchMembers(selectedTeamId);
-  }, [selectedTeamId, isLoadingProfile]);
+    if (isMegaLeader) {
+      fetchAnalytics();
+    } else {
+      fetchTasks(selectedTeamId);
+      fetchMembers(selectedTeamId);
+    }
+  }, [selectedTeamId, isLoadingProfile, isMegaLeader]);
 
   useEffect(() => {
     if (visibleSections.some((section) => section.id === activeView)) {
@@ -292,6 +314,7 @@ const DashboardPage = () => {
       const response = await api.post("/teams", values);
       const team = response.data.data;
       await fetchProfile();
+      await fetchAnalytics();
       syncTeamSelection(team.id);
       setActiveView("board");
       return true;
@@ -315,6 +338,7 @@ const DashboardPage = () => {
     try {
       await api.patch(`/teams/${teamId}/leader`, { leaderUserId });
       await fetchProfile();
+      await fetchAnalytics();
 
       if (teamId === selectedTeam?.id) {
         await fetchMembers(teamId);
@@ -452,29 +476,39 @@ const DashboardPage = () => {
             <>
               {activeView === "board" && (
                 <>
-                  <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,0.85fr)]">
-                    <KanbanPreviewCard
-                      tasks={tasks}
-                      isLoading={isLoadingTasks || isLoadingProfile}
-                      selectedTeam={selectedTeam}
-                      updatingTaskId={updatingTaskId}
-                      onStatusChange={handleStatusChange}
-                    />
+                  {isMegaLeader ? (
                     <div className="grid gap-6">
-                      <TeamRosterCard
-                        selectedTeam={selectedTeam}
-                        members={members}
-                        user={user}
-                        onOpenProfile={() => {
-                          setProfileError("");
-                          setIsProfileModalOpen(true);
-                        }}
-                      />
-                      <AuditTrailPreview tasks={tasks} selectedTeam={selectedTeam} />
+                      <PerformanceAnalytics analyticsData={analyticsData} />
+                      <TeamGrid analyticsData={analyticsData} />
                     </div>
-                  </div>
-
-                  <PriorityHeatmapCard tasks={tasks} />
+                  ) : isTeamLeader ? (
+                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,0.85fr)]">
+                      <KanbanPreviewCard
+                        tasks={tasks}
+                        isLoading={isLoadingTasks || isLoadingProfile}
+                        selectedTeam={selectedTeam}
+                        updatingTaskId={updatingTaskId}
+                        onStatusChange={handleStatusChange}
+                      />
+                      <MemberManagementPanel members={members} tasks={tasks} />
+                    </div>
+                  ) : (
+                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_minmax(360px,0.85fr)]">
+                      <KanbanPreviewCard
+                        tasks={tasks}
+                        isLoading={isLoadingTasks || isLoadingProfile}
+                        selectedTeam={selectedTeam}
+                        updatingTaskId={updatingTaskId}
+                        onStatusChange={handleStatusChange}
+                      />
+                      <MyTasksPanel
+                        tasks={tasks}
+                        userId={user?.id}
+                        updatingTaskId={updatingTaskId}
+                        onStatusChange={handleStatusChange}
+                      />
+                    </div>
+                  )}
                 </>
               )}
 
