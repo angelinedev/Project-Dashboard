@@ -35,7 +35,7 @@ graph TD
 - **Team-scoped Kanban**: A simplified view of the team's Kanban board utilizing ScrollableStacks to keep card columns clean and bounded.
 - **Work Assignment Studio**: Dropdown task creation linking title, priority, due date, and assignees directly from the team's roster.
 ![Team-Leader Dashboard preview](./docs/LeaderDashboard.png)
-![Team-Leader Dashboard preview](./docs/LeaderDashboard2.png)
+![Team-Leader Dashboard preview](./docs/LeaderDashboard1.png)
 
 ### 3. 👥 Member Workspace
 - **My Tasks Panel**: A personal focus checklist listing tasks assigned explicitly to the logged-in user, complete with inline status dropdowns for instant updates.
