@@ -91,7 +91,7 @@ const LoginPage = () => {
                 Project Dashboard
               </p>
               <h1 className="mt-4 max-w-xl text-4xl font-semibold leading-tight sm:text-5xl">
-                Internship-ready team operations, task visibility, and secure access.
+                Smart team workflows, clear task tracking, and role-based access.
               </h1>
               <p className="mt-5 max-w-xl text-base text-slate-300">
                 Use the protected login flow to enter the team workspace, review
