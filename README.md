@@ -123,8 +123,41 @@ Start the backend node server and frontend Vite bundler concurrently from the ro
 ```bash
 npm run dev
 ```
-
 The application will be accessible at [http://127.0.0.1:5173](http://127.0.0.1:5173).
+
+### 5. Demo & Testing Accounts
+
+For quick exploration of the platform, the following dummy accounts are automatically created when you run the database seeding script:
+
+> [!IMPORTANT]
+> The password for **all except Mega-Leader** demo accounts is: `password123`
+
+#### 👑 Mega-Leader (Platform Admin)
+* **Email:** `demo.20260524012827@example.com`
+* **Password:** `Passw0rd!123`
+* **Features to explore:** Full performance analytics dashboards across all teams, creating teams, generating invite codes, and assigning team leaders.
+
+#### ⚡ Team-Leaders (Department Managers)
+These accounts are scoped to their respective department teams. Log in with these to create/assign tasks and view team Kanban boards:
+
+| Team / Department | Email |
+| :--- | :--- |
+| **Velocity Studio** | `leader.velocity@example.com` |
+| **Design Labs** | `leader.design@example.com` |
+| **Product Operations** | `leader.product@example.com` |
+| **Analytics Suite** | `leader.analytics@example.com` |
+| **Core Platform** | `leader.core@example.com` |
+
+#### 👥 Team Members (Collaborators)
+Each team has 5 default members (index `1` to `5`) to test task updates and individual member workloads:
+
+| Team / Department | Email Format Example (Member 1) | Email Range |
+| :--- | :--- | :--- |
+| **Velocity Studio** | `member1.velocity@example.com` | `member1.velocity@example.com` to `member5.velocity@example.com` |
+| **Design Labs** | `member1.design@example.com` | `member1.design@example.com` to `member5.design@example.com` |
+| **Product Operations** | `member1.product@example.com` | `member1.product@example.com` to `member5.product@example.com` |
+| **Analytics Suite** | `member1.analytics@example.com` | `member1.analytics@example.com` to `member5.analytics@example.com` |
+| **Core Platform** | `member1.core@example.com` | `member1.core@example.com` to `member5.core@example.com` |
 
 ---
 
