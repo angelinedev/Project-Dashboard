@@ -10,6 +10,7 @@ import TaskStudioPanel from "@/components/dashboard/TaskStudioPanel.jsx";
 import TeamRosterCard from "@/components/dashboard/TeamRosterCard.jsx";
 import TeamGrid from "@/components/dashboard/TeamGrid.jsx";
 import PerformanceAnalytics from "@/components/analytics/PerformanceAnalytics.jsx";
+import SingleTeamAnalytics from "@/components/analytics/SingleTeamAnalytics.jsx";
 import MemberManagementPanel from "@/components/dashboard/MemberManagementPanel.jsx";
 import MyTasksPanel from "@/components/dashboard/MyTasksPanel.jsx";
 import AppShell from "@/components/layout/AppShell.jsx";
@@ -294,6 +295,9 @@ const DashboardPage = () => {
       });
 
       await fetchTasks(selectedTeam.id);
+      if (isMegaLeader) {
+        await fetchAnalytics();
+      }
       return true;
     } catch (error) {
       if (error.response?.status === 401) {
@@ -390,6 +394,9 @@ const DashboardPage = () => {
       setTasks((currentTasks) =>
         currentTasks.map((task) => (task.id === taskId ? updatedTask : task)),
       );
+      if (isMegaLeader) {
+        await fetchAnalytics();
+      }
     } catch (error) {
       if (error.response?.status === 401) {
         handleUnauthorized();
@@ -481,6 +488,11 @@ const DashboardPage = () => {
                   {isMegaLeader ? (
                     <div className="grid gap-6">
                       <PerformanceAnalytics analyticsData={analyticsData} />
+                      <SingleTeamAnalytics
+                        selectedTeam={selectedTeam}
+                        members={members}
+                        tasks={tasks}
+                      />
                       <TeamGrid analyticsData={analyticsData} />
                     </div>
                   ) : isTeamLeader ? (
