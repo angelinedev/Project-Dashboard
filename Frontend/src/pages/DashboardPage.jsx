@@ -226,7 +226,9 @@ const DashboardPage = () => {
 
     if (isMegaLeader) {
       fetchAnalytics();
-    } else {
+    }
+
+    if (selectedTeamId) {
       fetchTasks(selectedTeamId);
       fetchMembers(selectedTeamId);
     }
