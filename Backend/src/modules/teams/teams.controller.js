@@ -55,3 +55,12 @@ export const updateTeamLeaderController = asyncHandler(async (request, response)
     data: team,
   });
 });
+
+export const getTeamsAnalyticsController = asyncHandler(async (request, response) => {
+  const analytics = await getTeamsAnalytics(request.user);
+
+  response.status(200).json({
+    success: true,
+    data: analytics,
+  });
+});

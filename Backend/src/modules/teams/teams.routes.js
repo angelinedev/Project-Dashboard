@@ -6,11 +6,13 @@ import {
   getMyTeamsController,
   getTeamMembersController,
   updateTeamLeaderController,
+  getTeamsAnalyticsController,
 } from "./teams.controller.js";
 
 const router = Router();
 
 router.use(requireAuth);
+router.get("/analytics", getTeamsAnalyticsController);
 router.get("/", getMyTeamsController);
 router.post("/", createTeamController);
 router.get("/:teamId/members", getTeamMembersController);

@@ -52,13 +52,7 @@ export const createTask = async ({
 
 export const getTasksForUser = async ({ user, teamId }) => {
   if (!teamId) {
-    return Task.find({
-      $or: [{ assignedTo: user._id }, { createdBy: user._id }],
-    })
-      .populate("team", "teamName inviteCode")
-      .populate("assignedTo", "fullName email avatarUrl")
-      .populate("createdBy", "fullName email avatarUrl")
-      .sort({ createdAt: -1 });
+    throw createHttpError(400, "teamId query parameter is required.");
   }
 
   const access = await getTeamAccess({

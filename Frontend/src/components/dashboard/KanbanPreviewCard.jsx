@@ -72,32 +72,34 @@ const KanbanPreviewCard = ({
         Loading task board...
       </div>
     ) : (
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {columns.map((column) => {
           const columnTasks = tasks.filter((task) => task.status === column.key);
 
           return (
-            <div key={column.key} className="rounded-[24px] bg-slate-50 p-4">
+            <div key={column.key} className="rounded-[24px] bg-slate-50 p-4 flex flex-col">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-slate-900">{column.name}</h3>
+                <h3 className="font-semibold text-slate-900">
+                  {column.name} ({columnTasks.length})
+                </h3>
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${column.accent}`}
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${column.accent}`}
                 >
-                  {columnTasks.length} cards
+                  {columnTasks.length === 1 ? "1 card" : `${columnTasks.length} cards`}
                 </span>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="column-container">
                 {columnTasks.length > 0 ? (
                   columnTasks.map((task) => (
                     <article
                       key={task.id}
-                      className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-sm"
+                      className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-sm flex-shrink-0"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <p className="font-medium text-slate-800">{task.title}</p>
+                        <p className="font-medium text-slate-800 text-sm leading-snug">{task.title}</p>
                         <span
-                          className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${
+                          className={`rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-[0.14em] flex-shrink-0 ${
                             priorityToneMap[task.priority] || "bg-slate-100 text-slate-600"
                           }`}
                         >
@@ -106,21 +108,21 @@ const KanbanPreviewCard = ({
                       </div>
 
                       <div className="mt-4 flex items-center justify-between text-xs font-medium text-slate-400">
-                        <span className="truncate">
+                        <span className="truncate max-w-[100px]">
                           {task.assignedTo?.fullName || "Unassigned"}
                         </span>
                         <span>{formatDueDate(task.dueDate)}</span>
                       </div>
 
                       <label className="mt-4 block">
-                        <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        <span className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                           Update status
                         </span>
                         <select
                           value={task.status}
                           disabled={updatingTaskId === task.id}
                           onChange={(event) => onStatusChange(task.id, event.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-teal-400"
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-teal-400"
                         >
                           {columns.map((statusColumn) => (
                             <option key={statusColumn.key} value={statusColumn.key}>
@@ -132,7 +134,7 @@ const KanbanPreviewCard = ({
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-[20px] border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-400 sm:col-span-2">
+                  <div className="rounded-[20px] border border-dashed border-slate-200 bg-white px-4 py-8 text-center text-xs text-slate-400">
                     No tasks in {column.name.toLowerCase()}.
                   </div>
                 )}

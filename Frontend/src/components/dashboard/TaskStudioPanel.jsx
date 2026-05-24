@@ -91,48 +91,22 @@ const TaskStudioPanel = ({
           )}
         </label>
 
-        <div>
-          <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-600">Assign to</span>
-            {selectedAssignee && (
-              <button
-                type="button"
-                onClick={() => setValue("assignedTo", "")}
-                className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400"
-              >
-                Clear
-              </button>
-            )}
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            {members.map((member) => {
-              const isSelected = selectedAssignee === member.user?.id;
-
-              return (
-                <button
-                  key={member.id}
-                  type="button"
-                  onClick={() => setValue("assignedTo", member.user?.id || "")}
-                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition ${
-                    isSelected
-                      ? "border-teal-300 bg-teal-50"
-                      : "border-slate-200 bg-slate-50 hover:border-slate-300"
-                  }`}
-                >
-                  <AvatarBadge user={member.user} size="sm" />
-                  <div>
-                    <p className="font-medium text-slate-800">{member.user?.fullName}</p>
-                    <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
-                      {member.isPrimaryLeader ? "Team leader" : member.role}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          <input type="hidden" {...register("assignedTo")} />
-        </div>
+        <label className="block">
+          <span className="mb-2 block text-sm font-medium text-slate-600">
+            Assign to
+          </span>
+          <select
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-teal-400 focus:bg-white"
+            {...register("assignedTo")}
+          >
+            <option value="">Unassigned (None)</option>
+            {members.map((member) => (
+              <option key={member.user?.id} value={member.user?.id}>
+                {member.user?.fullName} ({member.isPrimaryLeader ? "Team Leader" : (member.role === "leader" ? "Team Leader" : "Member")})
+              </option>
+            ))}
+          </select>
+        </label>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block">
