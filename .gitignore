@@ -5,8 +5,6 @@ coverage/
 Thumbs.db
 
 # Environment files
-.env
-.env.local
 .env.*.local
 
 # Logs
@@ -19,3 +17,4 @@ pnpm-debug.log*
 # Vite / build artifacts
 Frontend/dist/
 Backend/.cache/
+config.bat

@@ -7,10 +7,10 @@
     "Backend"
   ],
   "scripts": {
-    "dev": "concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
-    "dev:backend": "npm --workspace Backend run dev",
-    "dev:frontend": "npm --workspace Frontend run dev",
-    "build": "npm --workspace Frontend run build"
+    "dev": "node init && concurrently \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "node init && npm --workspace Backend run dev",
+    "dev:frontend": "node init && npm --workspace Frontend run dev",
+    "build": "node init && npm --workspace Frontend run build"
   },
   "devDependencies": {
     "concurrently": "^9.0.1"
