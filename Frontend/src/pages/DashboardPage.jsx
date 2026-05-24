@@ -8,6 +8,10 @@ import KanbanPreviewCard from "@/components/dashboard/KanbanPreviewCard.jsx";
 import LeadershipPanel from "@/components/dashboard/LeadershipPanel.jsx";
 import TaskStudioPanel from "@/components/dashboard/TaskStudioPanel.jsx";
 import TeamRosterCard from "@/components/dashboard/TeamRosterCard.jsx";
+import TeamGrid from "@/components/dashboard/TeamGrid.jsx";
+import PerformanceAnalytics from "@/components/analytics/PerformanceAnalytics.jsx";
+import MemberManagementPanel from "@/components/dashboard/MemberManagementPanel.jsx";
+import MyTasksPanel from "@/components/dashboard/MyTasksPanel.jsx";
 import AppShell from "@/components/layout/AppShell.jsx";
 import Sidebar from "@/components/layout/Sidebar.jsx";
 import TopBar from "@/components/layout/TopBar.jsx";
@@ -33,6 +37,8 @@ const DashboardPage = () => {
   const [tasks, setTasks] = useState([]);
   const [members, setMembers] = useState([]);
   const [usersDirectory, setUsersDirectory] = useState([]);
+  const [analyticsData, setAnalyticsData] = useState([]);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
   const [activeView, setActiveView] = useState("board");
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
@@ -65,9 +71,10 @@ const DashboardPage = () => {
   );
 
   const isMegaLeader = user?.platformRole === "mega_leader";
+  const isTeamLeader = user?.platformRole === "team_leader";
   const canManageSelectedTeam =
     Boolean(selectedTeam) &&
-    (isMegaLeader || selectedMembership?.role === "leader");
+    (isMegaLeader || isTeamLeader || selectedMembership?.role === "leader");
 
   const visibleSections = useMemo(
     () =>
