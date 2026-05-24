@@ -31,7 +31,7 @@ graph TD
 ![Mega-Leader Dashboard preview](./docs/Admindashboard3.png)
 
 ### 2. ⚡ Team-Leader Workspace
-- ** Roster Management Panel**: Visual tracking of team collaborators with task distribution summaries per member (Todo, Active, Review, Done).
+- **Roster Management Panel**: Visual tracking of team collaborators with task distribution summaries per member (Todo, Active, Review, Done).
 - **Team-scoped Kanban**: A simplified view of the team's Kanban board utilizing ScrollableStacks to keep card columns clean and bounded.
 - **Work Assignment Studio**: Dropdown task creation linking title, priority, due date, and assignees directly from the team's roster.
 ![Team-Leader Dashboard preview](./docs/LeaderDashboard.png)
