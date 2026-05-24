@@ -36,12 +36,27 @@ const formatDueDate = (value) =>
       }).format(new Date(value))
     : "No due date";
 
+const getMemberAbbreviation = (name) => {
+  if (!name) return "UN";
+  const match = name.match(/Member\s+(\d+)\s+of\s+(\w+)/i);
+  if (match) {
+    return `M${match[1]}${match[2][0].toUpperCase()}`;
+  }
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((word) => word[0].toUpperCase())
+    .join("")
+    .slice(0, 3);
+};
+
 const KanbanPreviewCard = ({
   tasks,
   isLoading,
   selectedTeam,
   updatingTaskId,
   onStatusChange,
+  readonly = true,
 }) => (
   <section className="rounded-[32px] bg-white p-6 shadow-panel">
     <div className="mb-6 flex items-center justify-between">
@@ -83,9 +98,9 @@ const KanbanPreviewCard = ({
                   {column.name} ({columnTasks.length})
                 </h3>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${column.accent}`}
+                  className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${column.accent}`}
                 >
-                  {columnTasks.length === 1 ? "1 card" : `${columnTasks.length} cards`}
+                  {columnTasks.length}
                 </span>
               </div>
 
@@ -108,29 +123,33 @@ const KanbanPreviewCard = ({
                       </div>
 
                       <div className="mt-4 flex items-center justify-between text-xs font-medium text-slate-400">
-                        <span className="truncate max-w-[100px]">
-                          {task.assignedTo?.fullName || "Unassigned"}
+                        <span className="font-semibold text-slate-500 bg-slate-100 rounded px-1.5 py-0.5">
+                          {getMemberAbbreviation(task.assignedTo?.fullName)}
                         </span>
                         <span>{formatDueDate(task.dueDate)}</span>
                       </div>
 
-                      <label className="mt-4 block">
-                        <span className="mb-2 block text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                          Update status
-                        </span>
-                        <select
-                          value={task.status}
-                          disabled={updatingTaskId === task.id}
-                          onChange={(event) => onStatusChange(task.id, event.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-teal-400"
-                        >
-                          {columns.map((statusColumn) => (
-                            <option key={statusColumn.key} value={statusColumn.key}>
-                              {statusColumn.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
+                      {!readonly && (
+                        <div className="mt-4 border-t border-slate-200/60 pt-3">
+                          <label className="block">
+                            <span className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                              Update status
+                            </span>
+                            <select
+                              value={task.status}
+                              disabled={updatingTaskId === task.id}
+                              onChange={(event) => onStatusChange(task.id, event.target.value)}
+                              className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-teal-400"
+                            >
+                              {columns.map((statusColumn) => (
+                                <option key={statusColumn.key} value={statusColumn.key}>
+                                  {statusColumn.name}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
+                      )}
                     </article>
                   ))
                 ) : (
