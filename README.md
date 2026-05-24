@@ -2,7 +2,7 @@
 
 ![LandingPage](./docs/loginpage.png)
 
-A premium MERN stack project management and workflow system designed for multi-team environments. The application provides dynamic role-based workspaces for **Mega-Leaders (Platform Admins)**, **Team-Leaders**, and **Members**, complete with interactive progress visualization, task-scoping, and team invitations.
+A premium MERN stack project management and workflow system designed for multi-team environments. The application provides dynamic role-based workspaces for **Mega-Leaders (Platform Admins)**, **Team-Leaders**, and **Members**, complete with interactive progress visualization, task-scoping, and team invitations. Built as a Jira/Agile workflow inspired module.
 
 ---
 
