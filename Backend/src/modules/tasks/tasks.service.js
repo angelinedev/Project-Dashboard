@@ -1,7 +1,5 @@
 import { Task } from "../../models/Task.js";
-import { User } from "../../models/User.js";
 import {
-  TEAM_ROLE,
   canManageTeamTasks,
   getTeamAccess,
 } from "../../utils/accessControl.js";

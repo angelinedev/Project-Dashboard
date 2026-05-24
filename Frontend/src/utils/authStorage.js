@@ -23,6 +23,8 @@ export const getStoredMemberships = () => readJson(STORAGE_KEYS.memberships, [])
 export const getStoredSelectedTeamId = () =>
   window.localStorage.getItem(STORAGE_KEYS.selectedTeamId) || "";
 
+export const getStorageKey = (key) => STORAGE_KEYS[key];
+
 export const setStoredSelectedTeamId = (teamId) => {
   if (teamId) {
     window.localStorage.setItem(STORAGE_KEYS.selectedTeamId, teamId);
@@ -32,7 +34,9 @@ export const setStoredSelectedTeamId = (teamId) => {
 };
 
 export const persistSession = ({ token, user, memberships }) => {
-  window.localStorage.setItem(STORAGE_KEYS.token, token);
+  if (token) {
+    window.localStorage.setItem(STORAGE_KEYS.token, token);
+  }
   window.localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
   window.localStorage.setItem(STORAGE_KEYS.memberships, JSON.stringify(memberships || []));
 
@@ -44,6 +48,14 @@ export const persistSession = ({ token, user, memberships }) => {
   if (!existingTeamId || !availableTeamIds.includes(existingTeamId)) {
     setStoredSelectedTeamId(availableTeamIds[0] || "");
   }
+};
+
+export const persistUser = (user) => {
+  window.localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(user));
+};
+
+export const persistMemberships = (memberships) => {
+  window.localStorage.setItem(STORAGE_KEYS.memberships, JSON.stringify(memberships || []));
 };
 
 export const clearSession = () => {

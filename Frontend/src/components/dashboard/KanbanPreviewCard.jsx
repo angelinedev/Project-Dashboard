@@ -11,7 +11,7 @@ const columns = [
   },
   {
     key: "review",
-    name: "Review",
+    name: "In Review",
     accent: "bg-fuchsia-100 text-fuchsia-700",
   },
   {
@@ -50,11 +50,11 @@ const KanbanPreviewCard = ({
           Board
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-slate-900">
-          Live Kanban workflow
+          Team workflow
         </h2>
       </div>
       <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700">
-        MongoDB connected
+        Clean board
       </span>
     </div>
 
@@ -72,26 +72,28 @@ const KanbanPreviewCard = ({
         Loading task board...
       </div>
     ) : (
-      <div className="grid gap-4 xl:grid-cols-4">
+      <div className="grid gap-4 xl:grid-cols-2">
         {columns.map((column) => {
           const columnTasks = tasks.filter((task) => task.status === column.key);
 
           return (
-            <div key={column.name} className="rounded-[24px] bg-slate-50 p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-semibold text-slate-900">{column.name}</h3>
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${column.accent}`}>
+            <div key={column.key} className="rounded-[24px] bg-slate-50 p-4">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="font-semibold text-slate-900">{column.name}</h3>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold ${column.accent}`}
+                >
                   {columnTasks.length} cards
-            </span>
-          </div>
+                </span>
+              </div>
 
-          <div className="space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
                 {columnTasks.length > 0 ? (
                   columnTasks.map((task) => (
-              <article
+                    <article
                       key={task.id}
-                className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-sm"
-              >
+                      className="rounded-[20px] border border-slate-100 bg-white p-4 shadow-sm"
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <p className="font-medium text-slate-800">{task.title}</p>
                         <span
@@ -102,16 +104,17 @@ const KanbanPreviewCard = ({
                           {task.priority}
                         </span>
                       </div>
-                <p className="mt-2 text-sm text-slate-500">
-                        {task.description || "No description added yet."}
-                </p>
+
                       <div className="mt-4 flex items-center justify-between text-xs font-medium text-slate-400">
-                        <span>{task.assignedTo?.fullName || "Unassigned"}</span>
+                        <span className="truncate">
+                          {task.assignedTo?.fullName || "Unassigned"}
+                        </span>
                         <span>{formatDueDate(task.dueDate)}</span>
                       </div>
+
                       <label className="mt-4 block">
                         <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                          Move card
+                          Update status
                         </span>
                         <select
                           value={task.status}
@@ -126,15 +129,15 @@ const KanbanPreviewCard = ({
                           ))}
                         </select>
                       </label>
-              </article>
+                    </article>
                   ))
                 ) : (
-                  <div className="rounded-[20px] border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-400">
+                  <div className="rounded-[20px] border border-dashed border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-400 sm:col-span-2">
                     No tasks in {column.name.toLowerCase()}.
                   </div>
                 )}
-          </div>
-        </div>
+              </div>
+            </div>
           );
         })}
       </div>

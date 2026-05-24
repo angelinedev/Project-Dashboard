@@ -1,3 +1,4 @@
+import { Team } from "../../models/Team.js";
 import { TeamMember } from "../../models/TeamMember.js";
 import { User } from "../../models/User.js";
 import { PLATFORM_ROLE, isMegaLeader } from "../../utils/accessControl.js";
@@ -17,7 +18,6 @@ export const getCurrentUserProfile = async (currentUser) => {
   let memberships = [];
 
   if (isMegaLeader(user)) {
-    const { Team } = await import("../../models/Team.js");
     const teams = await Team.find().sort({ createdAt: -1 });
     memberships = serializeTeamAccessCollection(teams, PLATFORM_ROLE.MEGA_LEADER);
   } else {

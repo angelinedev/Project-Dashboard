@@ -1,14 +1,15 @@
-import { dashboardSections } from "@/utils/navigation.js";
+import AvatarBadge from "@/components/common/AvatarBadge.jsx";
 
-const getInitials = (name = "") =>
-  name
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-
-const Sidebar = ({ user, memberships, selectedTeamId, onSelectTeam, onOpenJoinTeam }) => (
+const Sidebar = ({
+  user,
+  activeView,
+  sections,
+  selectedTeam,
+  onChangeView,
+  onOpenProfile,
+  onOpenJoinTeam,
+  onOpenCreateTeam,
+}) => (
   <aside className="rounded-[36px] bg-slate-950 p-6 text-white shadow-panel">
     <div>
       <p className="text-sm uppercase tracking-[0.32em] text-teal-200/70">
@@ -18,79 +19,57 @@ const Sidebar = ({ user, memberships, selectedTeamId, onSelectTeam, onOpenJoinTe
         Project Dashboard
       </h1>
       <p className="mt-3 max-w-xs text-sm text-slate-300">
-        Protected team operations, assignment tracking, and collaboration in a
-        single MERN workspace.
+        Multi-team leadership, task assignment, and progress tracking in one
+        modular workspace.
       </p>
     </div>
 
     <div className="mt-10 rounded-[28px] border border-white/10 bg-white/5 p-5">
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500 font-semibold text-slate-950">
-          {getInitials(user?.fullName || "PD")}
-        </div>
+        <AvatarBadge user={user} size="md" interactive onClick={onOpenProfile} />
         <div>
           <p className="font-semibold">{user?.fullName || "Project member"}</p>
-          <p className="text-sm text-slate-300">{user?.email || "No email loaded"}</p>
+          <p className="text-sm capitalize text-slate-300">
+            {(user?.platformRole || "member").replace("_", " ")}
+          </p>
         </div>
       </div>
     </div>
 
     <nav className="mt-8 space-y-3">
-      {dashboardSections.map((item) => (
-        <div
-          key={item.label}
-          className="flex items-center justify-between rounded-2xl bg-white/5 px-4 py-3 text-left"
+      {sections.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          onClick={() => onChangeView(item.id)}
+          className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition ${
+            activeView === item.id
+              ? "bg-teal-500 text-slate-950"
+              : "bg-white/5 text-slate-100 hover:bg-white/10"
+          }`}
         >
-          <span className="font-medium text-slate-100">{item.label}</span>
-          <span className="text-xs uppercase tracking-[0.2em] text-teal-200/70">
-            {item.hint}
-          </span>
-        </div>
+          <span className="font-medium">{item.label}</span>
+          <span className="text-xs uppercase tracking-[0.2em]">{item.hint}</span>
+        </button>
       ))}
     </nav>
 
     <div className="mt-8 rounded-[28px] border border-white/10 bg-white/5 p-5">
       <p className="text-sm uppercase tracking-[0.2em] text-teal-200/70">
-        Teams
+        Focus team
       </p>
-      <div className="mt-4 space-y-3">
-        {memberships.length > 0 ? (
-          memberships.map((membership) => {
-            const isSelected = membership.team?.id === selectedTeamId;
-
-            return (
-              <button
-                key={membership.id}
-                type="button"
-                onClick={() => onSelectTeam(membership.team?.id || "")}
-                className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
-                  isSelected
-                    ? "border-teal-300 bg-teal-500 text-slate-950"
-                    : "border-white/10 bg-white/5 text-slate-100 hover:bg-white/10"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="font-semibold">{membership.team?.teamName || "Unknown team"}</span>
-                  <span className="text-[11px] uppercase tracking-[0.18em]">
-                    {membership.role}
-                  </span>
-                </div>
-                <p
-                  className={`mt-2 text-sm ${
-                    isSelected ? "text-slate-900/80" : "text-slate-300"
-                  }`}
-                >
-                  Invite code: {membership.team?.inviteCode || "N/A"}
-                </p>
-              </button>
-            );
-          })
-        ) : (
-          <div className="rounded-2xl border border-dashed border-white/15 px-4 py-5 text-sm text-slate-300">
-            No team memberships yet. Join with an invitation code to unlock the
-            live board.
-          </div>
-        )}
+      <div className="mt-4 rounded-[24px] border border-white/10 bg-white/5 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <span className="font-semibold">{selectedTeam?.teamName || "No team selected"}</span>
+          {selectedTeam?.inviteCode && (
+            <span className="text-[11px] uppercase tracking-[0.18em] text-teal-200/70">
+              {selectedTeam.inviteCode}
+            </span>
+          )}
+        </div>
+        <p className="mt-3 text-sm text-slate-300">
+          {selectedTeam?.description || "Switch teams from the tabs at the top."}
+        </p>
       </div>
 
       <button
@@ -100,6 +79,16 @@ const Sidebar = ({ user, memberships, selectedTeamId, onSelectTeam, onOpenJoinTe
       >
         Join Team
       </button>
+
+      {user?.platformRole === "mega_leader" && (
+        <button
+          type="button"
+          onClick={onOpenCreateTeam}
+          className="mt-3 w-full rounded-2xl bg-teal-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-teal-700"
+        >
+          Create Team
+        </button>
+      )}
     </div>
   </aside>
 );
