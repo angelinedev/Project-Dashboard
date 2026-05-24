@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
     },
     platformRole: {
       type: String,
-      enum: ["mega_leader", "member"],
+      enum: ["mega_leader", "team_leader", "member"],
       default: "member",
       index: true,
     },

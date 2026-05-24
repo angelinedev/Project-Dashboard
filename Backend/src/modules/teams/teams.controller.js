@@ -5,6 +5,7 @@ import {
   getTeamMembers,
   getTeamsForUser,
   updateTeamLeader,
+  getTeamsAnalytics,
 } from "./teams.service.js";
 
 export const createTeamController = asyncHandler(async (request, response) => {

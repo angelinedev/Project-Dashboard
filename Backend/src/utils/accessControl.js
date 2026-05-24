@@ -4,6 +4,7 @@ import { createHttpError } from "./createHttpError.js";
 
 export const PLATFORM_ROLE = {
   MEGA_LEADER: "mega_leader",
+  TEAM_LEADER: "team_leader",
   MEMBER: "member",
 };
 

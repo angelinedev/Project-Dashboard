@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Team } from "../../models/Team.js";
 import { TeamMember } from "../../models/TeamMember.js";
 import { User } from "../../models/User.js";
+import { Task } from "../../models/Task.js";
 import {
   PLATFORM_ROLE,
   TEAM_ROLE,
@@ -75,6 +76,11 @@ export const createTeam = async ({ actor, teamName, description, leaderId }) => 
         { session },
       );
 
+      if (assignedLeader.platformRole === "member") {
+        assignedLeader.platformRole = "team_leader";
+        await assignedLeader.save({ session });
+      }
+
       createdTeam = await Team.findById(team._id).session(session);
     });
   } finally {
@@ -86,13 +92,17 @@ export const createTeam = async ({ actor, teamName, description, leaderId }) => 
 
 export const getTeamsForUser = async (currentUser) => {
   if (isMegaLeader(currentUser)) {
-    const teams = await Team.find().sort({ createdAt: -1 });
+    const teams = await Team.find().populate("leader", "fullName email avatarUrl platformRole").sort({ createdAt: -1 });
     return serializeTeamAccessCollection(teams, PLATFORM_ROLE.MEGA_LEADER);
   }
 
   const memberships = await TeamMember.find({ user: currentUser._id })
     .populate({
       path: "team",
+      populate: {
+        path: "leader",
+        select: "fullName email avatarUrl platformRole",
+      },
       select:
         "teamName inviteCode leader createdBy memberCount description createdAt updatedAt",
     })
@@ -159,6 +169,8 @@ export const updateTeamLeader = async ({ actor, teamId, leaderUserId }) => {
         throw createHttpError(404, "The selected leader was not found.");
       }
 
+      const oldLeaderId = team.leader;
+
       await TeamMember.updateMany(
         {
           team: team._id,
@@ -196,6 +208,28 @@ export const updateTeamLeader = async ({ actor, teamId, leaderUserId }) => {
       team.leader = nextLeader._id;
       await team.save({ session });
 
+      // Demote old leader if they don't lead any other teams and are not mega_leader
+      if (oldLeaderId && oldLeaderId.toString() !== nextLeader._id.toString()) {
+        const otherTeamsLedCount = await Team.countDocuments({
+          leader: oldLeaderId,
+          _id: { $ne: team._id },
+        }).session(session);
+
+        if (otherTeamsLedCount === 0) {
+          const oldLeaderUser = await User.findById(oldLeaderId).session(session);
+          if (oldLeaderUser && oldLeaderUser.platformRole === "team_leader") {
+            oldLeaderUser.platformRole = "member";
+            await oldLeaderUser.save({ session });
+          }
+        }
+      }
+
+      // Upgrade new leader to team_leader if they are currently a member
+      if (nextLeader.platformRole === "member") {
+        nextLeader.platformRole = "team_leader";
+        await nextLeader.save({ session });
+      }
+
       updatedTeam = team;
     });
   } finally {
@@ -203,4 +237,51 @@ export const updateTeamLeader = async ({ actor, teamId, leaderUserId }) => {
   }
 
   return updatedTeam;
+};
+
+export const getTeamsAnalytics = async (actor) => {
+  if (!isMegaLeader(actor)) {
+    throw createHttpError(403, "Only the mega leader can view analytics.");
+  }
+
+  const teams = await Team.find().populate("leader", "fullName email avatarUrl platformRole");
+  const analytics = [];
+
+  for (const team of teams) {
+    const tasks = await Task.find({ team: team._id });
+    const total = tasks.length;
+    const done = tasks.filter((t) => t.status === "done").length;
+    const review = tasks.filter((t) => t.status === "review").length;
+    const inProgress = tasks.filter((t) => t.status === "in_progress").length;
+    const todo = tasks.filter((t) => t.status === "todo").length;
+
+    analytics.push({
+      team: {
+        id: team._id.toString(),
+        teamName: team.teamName,
+        inviteCode: team.inviteCode,
+        description: team.description,
+        memberCount: team.memberCount,
+        leader: team.leader
+          ? {
+              id: team.leader._id.toString(),
+              fullName: team.leader.fullName,
+              email: team.leader.email,
+              avatarUrl: team.leader.avatarUrl,
+              platformRole: team.leader.platformRole,
+            }
+          : null,
+      },
+      taskStats: {
+        total,
+        done,
+        review,
+        inProgress,
+        todo,
+      },
+      progress: total > 0 ? Math.round((done / total) * 100) : 0,
+    });
+  }
+
+  return analytics;
 };

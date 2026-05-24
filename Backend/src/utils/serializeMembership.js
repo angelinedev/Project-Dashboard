@@ -2,7 +2,15 @@ export const serializeTeam = (team) => ({
   id: team._id.toString(),
   teamName: team.teamName,
   inviteCode: team.inviteCode,
-  leader: team.leader?.toString?.() ?? team.leader,
+  leader: team.leader && typeof team.leader === "object" && team.leader._id
+    ? {
+        id: team.leader._id.toString(),
+        fullName: team.leader.fullName,
+        email: team.leader.email,
+        avatarUrl: team.leader.avatarUrl,
+        platformRole: team.leader.platformRole,
+      }
+    : (team.leader?.toString?.() ?? team.leader),
   createdBy: team.createdBy?.toString?.() ?? team.createdBy,
   memberCount: team.memberCount,
   description: team.description,
